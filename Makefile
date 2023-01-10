@@ -40,11 +40,13 @@ INCL= -I $(TPDIR)/include $(INCLATLAS)
 ############
 #
 OBJENV= tp_env.o
-OBJTP2ITER= lib_poisson1D.o tp_poisson1D_iter.o
+#OBJTP2ITER= lib_poisson1D.o tp_poisson1D_iter.o
 OBJTP2DIRECT= lib_poisson1D.o tp_poisson1D_direct.o
 #
 
-all: bin/tp_testenv bin/tpPoisson1D_iter bin/tpPoisson1D_direct
+#all: bin/tp_testenv bin/tpPoisson1D_iter bin/tpPoisson1D_direct
+
+all: bin/tp_testenv bin/tpPoisson1D_direct
 
 testenv: bin/tp_testenv
 
@@ -68,7 +70,7 @@ bin/tp_testenv: $(OBJENV)
 	$(CC) -o bin/tp_testenv $(OPTC) $(OBJENV) $(LIBS)
 
 bin/tpPoisson1D_iter: $(OBJTP2ITER)
-	$(CC) -o bin/tpPoisson1D_iter $(OPTC) $(OBJTP2ITER) $(LIBS)
+	#$(CC) -o bin/tpPoisson1D_iter $(OPTC) $(OBJTP2ITER) $(LIBS)
 
 bin/tpPoisson1D_direct: $(OBJTP2DIRECT)
 	$(CC) -o bin/tpPoisson1D_direct $(OPTC) $(OBJTP2DIRECT) $(LIBS)
