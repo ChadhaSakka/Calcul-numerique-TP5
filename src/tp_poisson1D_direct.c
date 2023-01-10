@@ -35,7 +35,6 @@ int main(int argc,char *argv[])
   EX_SOL=(double *) malloc(sizeof(double)*la);
   X=(double *) malloc(sizeof(double)*la);
 
-  // TODO : you have to implement those functions
   set_grid_points_1D(X, &la);
   set_dense_RHS_DBC_1D(RHS,&la,&T0,&T1);
   set_analytical_solution_DBC_1D(EX_SOL, X, &la, &T0, &T1);
@@ -53,34 +52,44 @@ int main(int argc,char *argv[])
 
   set_GB_operator_colMajor_poisson1D(AB, &lab, &la, &kv);
 
-  // write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "AB.dat");
+  /*
+    write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "AB.dat");
+  */
 
   printf("Solution with LAPACK\n");
   /* LU Factorization */
   info=0;
   ipiv = (int *) calloc(la, sizeof(int));
-  dgbtrf_(&la, &la, &kl, &ku, AB, &lab, ipiv, &info);
+  //ierr = dgbtrf_(&la, &la, &kl, &ku, AB, &lab, ipiv, &info);
 
   /* LU for tridiagonal matrix  (can replace dgbtrf_) */
   // ierr = dgbtrftridiag(&la, &la, &kl, &ku, AB, &lab, ipiv, &info);
 
-  // write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "LU.dat");
+  /*
+    write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "LU.dat");
+  */
   
   /* Solution (Triangular) */
   if (info==0){
-    dgbtrs_("N", &la, &kl, &ku, &NRHS, AB, &lab, ipiv, RHS, &la, &info);
+    // ierr = dgbtrs_("N", &la, &kl, &ku, &NRHS, AB, &lab, ipiv, RHS, &la, &info);
     if (info!=0){printf("\n INFO DGBTRS = %d\n",info);}
   }else{
     printf("\n INFO = %d\n",info);
   }
 
-  /* It can also be solved with dgbsv */
-  // TODO : use dgbsv
+  /* It can also be solved with dgbsv (dgbtrf+dgbtrs) */
+  /*  ierr = */
+  dgbsv_(&la, &kl, &ku, &NRHS, AB, &lab, ipiv, RHS, &la, &info);
 
   write_xy(RHS, X, &la, "SOL.dat");
 
   /* Relative forward error */
-  // TODO : Compute relative norm of the residual
+  temp = cblas_ddot(la, RHS, 1, RHS,1);
+  temp = sqrt(temp);
+  cblas_daxpy(la, -1.0, RHS, 1, EX_SOL, 1);
+  relres = cblas_ddot(la, EX_SOL, 1, EX_SOL,1);
+  relres = sqrt(relres);
+  relres = relres / temp;
   
   printf("\nThe relative forward error is relres = %e\n",relres);
 
