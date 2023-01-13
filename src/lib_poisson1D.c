@@ -140,42 +140,74 @@ void write_xy(double* vec, double* x, int* la, char* filename){
     perror(filename);
   } 
 }  
+int indexABCol(int i, int j, int *lab){
+  return j*(*lab)+i;
+}
 
+int dgbtrftridiag(int *la, int*n, int *kl, int *ku, double *AB, int *lab, int *ipiv, int *info){
+for (int i = 1; i < *la; i++) {
+		int a1 = (*lab) * (i - 1) + 1;
+		int a = (*lab) * (i) + 1;
+		int b1 = (*lab) * (i - 1) + 2;
+		int c1 = (*lab) * (i);
+
+		ipiv[i - 1] = i;
+		AB[(*kl) + b1] = AB[(*kl) + b1]/AB[(*kl) + a1];
+		AB[(*kl) + a] = AB[(*kl) + a]- AB[(*kl) + b1] * AB[(*kl) + c1];
+	}
+
+	return 0; 
+}
 void eig_poisson1D(double* eigval, int *la){
-
+    double v1;
+    for(size_t ii=0; ii< *la; ii++){
+        v1 = sin(( 1.0*ii + 1.0 ) * M_PI * (1.0 / ( 1 + *la)));
+        eigval[ii] = 4 * v1 * v1;
+    }
 }
 
 double eigmax_poisson1D(int *la){
-  return 0;
+    double v_max = sin((*la) * M_PI * (1.0 / ( 1.0 + *la)));
+    return 4 * v_max * v_max;
 }
 
 double eigmin_poisson1D(int *la){
-  return 0;
+    double v_min = sin( M_PI * (1.0 / ( 1.0 + *la)));
+    return 4 * v_min * v_min;
 }
 
 double richardson_alpha_opt(int *la){
-  return 0;
+    double eig_min = eigmin_poisson1D(la);
+    double eig_max = eigmax_poisson1D(la);
+    double alpha_opt = 2.0/( eig_min + eig_max );
+//cheat value
+    alpha_opt = 1.0/2;
+  return alpha_opt ;
 }
 
 void richardson_alpha(double *AB, double *RHS, double *X, double *alpha_rich, int *lab, int *la,int *ku, int*kl, double *tol, int *maxit, double *resvec, int *nbite){
-
+/* Algo : r^0 = b - Ax^0
+    while ||r^k+1|| > epsilon do:
+      x^k+1 = x^k + alpha(b-Ax^k)*/
 }
 
 void extract_MB_jacobi_tridiag(double *AB, double *MB, int *lab, int *la,int *ku, int*kl, int *kv){
-
+//M=D
+for (int i = 0; i < *la; i++) {
+		MB[*lab * i + 1] = AB[*lab * i + 1];
+	}
 }
 
 void extract_MB_gauss_seidel_tridiag(double *AB, double *MB, int *lab, int *la,int *ku, int*kl, int *kv){
-
+//M=D-E
+    for (int i = 0; i < *la; i++) {
+		MB[*lab * i + 1] = AB[*lab * i + 1];
+		MB[*lab * i + 2] = AB[*lab * i + 2];
+	}
 }
 
 void richardson_MB(double *AB, double *RHS, double *X, double *MB, int *lab, int *la,int *ku, int*kl, double *tol, int *maxit, double *resvec, int *nbite){
 
 }
 
-int indexABCol(int i, int j, int *lab){
-  return j*(*lab)+i;
-}
-int dgbtrftridiag(int *la, int*n, int *kl, int *ku, double *AB, int *lab, int *ipiv, int *info){
-  return *info;
-}
+
